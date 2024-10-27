@@ -18,4 +18,11 @@ app.use(express.static("public")) //Anyone can access these files
 //CookieParser is used to perform CRUD operations on cookies in  user's browser
 app.use(cookieParser())
 
+//routes import
+import userRouter from "./routes/user.router.js"
+
+//Router configuration for a endpoint
+app.use("/users",userRouter)
+
+// http://localhost:8000/users/register
 export {app}
