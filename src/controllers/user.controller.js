@@ -14,8 +14,8 @@ const userRegister = asyncHandler(async(req,res) => {
   //check whether entry is created, if yes, return response else, return error
 
   const {username,email,fullName,password} = req.body
-  // console.table([username,email,fullName,password])
-  console.log(email)
+  // console.log(req.body)
+  // console.log(req.files)
 
   if(
     [username,email,fullName,password].some( 
@@ -25,7 +25,7 @@ const userRegister = asyncHandler(async(req,res) => {
     throw new ApiError(400,"All fields are required to meet the criteria")
   }
 
-  const existingUser = User.findOne({
+  const existingUser = await User.findOne({
     $or: [{ username },{ email }]
   })
 
@@ -34,17 +34,26 @@ const userRegister = asyncHandler(async(req,res) => {
   }
 
   const avatarLocalFilePath = req.files?.avatar[0]?.path
-  const coverImageLocalFilePath = req.files?.coverImage[0]?.path
+  // const coverImageLocalFilePath = req.files?.coverImage[0]?.path
+  let coverImageLocalFilePath;
+  if(Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+    coverImageLocalFilePath = req.files.coverImage[0].path
+  }
 
   if(!avatarLocalFilePath){
     throw new ApiError(400,"Avatar File is required")
   }
 
   const avatar = await uploadOnCloudinary(avatarLocalFilePath)
+  let coverImage;
+  // if(coverImageLocalFilePath){
+  //   coverImage = await uploadOnCloudinary(coverImageLocalFilePath)
+  // }
 
-  if(coverImageLocalFilePath){
-    const coverImage = await uploadOnCloudinary(coverImageLocalFilePath)
-  }
+  coverImage = await uploadOnCloudinary(coverImageLocalFilePath)
+
+  console.log(avatarLocalFilePath)
+  console.log(coverImage)
 
   if(!avatar){
     throw new ApiError(500,"File not Supported")
